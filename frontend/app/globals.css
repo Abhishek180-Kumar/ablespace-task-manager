@@ -24,3 +24,25 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+:root {
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-soft: #eff6ff;
+  --accent-text: #1e40af;
+}
+
+[data-accent="blue"] { --accent: #3b82f6; --accent-hover: #2563eb; --accent-soft: #eff6ff; --accent-text: #1e40af; }
+[data-accent="amber"] { --accent: #f59e0b; --accent-hover: #d97706; --accent-soft: #fffbeb; --accent-text: #92400e; }
+[data-accent="pink"] { --accent: #ec4899; --accent-hover: #db2777; --accent-soft: #fdf2f8; --accent-text: #9d174d; }
+[data-accent="rose"] { --accent: #f43f5e; --accent-hover: #e11d48; --accent-soft: #fff1f2; --accent-text: #9f1239; }
+[data-accent="emerald"] { --accent: #10b981; --accent-hover: #059669; --accent-soft: #ecfdf5; --accent-text: #065f46; }
+[data-accent="black"] { --accent: #1f2937; --accent-hover: #111827; --accent-soft: #f3f4f6; --accent-text: #1f2937; }
+
+.dark [data-accent="black"] { --accent: #ffffff; --accent-hover: #e5e7eb; --accent-soft: #374151; --accent-text: #ffffff; }
+
+.bg-accent { background-color: var(--accent); }
+.bg-accent-hover:hover { background-color: var(--accent-hover); }
+.bg-accent-soft { background-color: var(--accent-soft); }
+.text-accent { color: var(--accent-text); }
+.border-accent { border-color: var(--accent); }

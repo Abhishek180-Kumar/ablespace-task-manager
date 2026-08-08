@@ -1,23 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Delete,
-  Param,
-  Query,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import {
-  CreateTaskDto,
-  UpdateTaskDto,
-  QueryTaskDto,
-} from './dto/create-task.dto';
+import { CreateTaskDto, UpdateTaskDto, QueryTaskDto } from './dto/create-task.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
+import { AuthenticatedRequest } from '../auth/types/authenticated-request';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
@@ -25,47 +10,37 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(
-    @Body() createTaskDto: CreateTaskDto,
-    @Request() req: AuthenticatedRequest,
-  ) {
-    return this.tasksService.create(req.user.userId, createTaskDto);
+  create(@Body() createTaskDto: CreateTaskDto, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.create(createTaskDto, req.user.userId);
   }
 
   @Get()
-  findAll(@Query() query: QueryTaskDto, @Request() req: AuthenticatedRequest) {
-    return this.tasksService.findAll(req.user.userId, query);
+  findAll(@Query() query: QueryTaskDto, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.findAll(query, req.user.userId);
   }
 
   @Get('deleted')
-  findDeleted(
-    @Query() query: QueryTaskDto,
-    @Request() req: AuthenticatedRequest,
-  ) {
-    return this.tasksService.findDeleted(req.user.userId, query);
+  findDeleted(@Req() req: AuthenticatedRequest) {
+    return this.tasksService.findDeleted(req.user.userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
-    return this.tasksService.findOne(req.user.userId, id);
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.findOne(id, req.user.userId);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTaskDto: UpdateTaskDto,
-    @Request() req: AuthenticatedRequest,
-  ) {
-    return this.tasksService.update(req.user.userId, id, updateTaskDto);
+  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.update(id, updateTaskDto, req.user.userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
-    return this.tasksService.remove(req.user.userId, id);
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.remove(id, req.user.userId);
   }
 
   @Post(':id/restore')
-  restore(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
-    return this.tasksService.restore(req.user.userId, id);
+  restore(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.tasksService.restore(id, req.user.userId);
   }
 }

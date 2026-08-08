@@ -1,59 +1,53 @@
 'use client';
-
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
+type Accent = 'blue' | 'amber' | 'pink' | 'rose' | 'emerald' | 'black';
 
 interface ThemeContextType {
   theme: Theme;
+  accent: Accent;
   toggleTheme: () => void;
+  setAccent: (accent: Accent) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
+  const [accent, setAccent] = useState<Accent>('blue');
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme') as Theme | null;
-    const initial =
-      stored ??
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration on mount
-    setTheme(initial);
-    document.documentElement.classList.toggle('dark', initial === 'dark');
+    const storedTheme = localStorage.getItem('theme') as Theme;
+    const storedAccent = localStorage.getItem('accent') as Accent;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(storedTheme || (prefersDark ? 'dark' : 'light'));
+    setAccent(storedAccent || 'blue');
   }, []);
 
-  const toggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('theme', next);
-      document.documentElement.classList.toggle('dark', next === 'dark');
-      return next;
-    });
-  };
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-accent', accent);
+    localStorage.setItem('accent', accent);
+  }, [accent]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ theme, accent, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'), setAccent }}>
+      {children}
+    </ThemeContext.Provider>
   );
 }
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
+  return ctx;
 }
-
-// Inline script injected into <head> so the correct theme class is applied
-// before React hydrates — prevents a flash of the wrong theme on load/refresh.
-export const noFlashThemeScript = `
-(function () {
-  try {
-    var stored = localStorage.getItem('theme');
-    var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    if (theme === 'dark') document.documentElement.classList.add('dark');
-  } catch (e) {}
-})();
-`;
