@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AuthGuard from '@/components/AuthGuard';
-import Navbar from '@/components/Navbar';
+import AppShell from '@/components/AppShell';
 import TaskList from '@/components/TaskList';
 import { api, Task } from '@/lib/api';
 
@@ -40,34 +40,29 @@ export default function TrashPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Navbar />
-        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="px-4 py-6 sm:px-0">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Trash</h1>
-            </div>
+      <AppShell>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Trash</h1>
+        </div>
 
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Deleted tasks are kept here until you restore them.
-            </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Deleted tasks are kept here until you restore them.
+        </p>
 
-            {error && (
-              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded dark:bg-red-900 dark:border-red-700 dark:text-red-200">
-                {error}
-              </div>
-            )}
-
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              </div>
-            ) : (
-              <TaskList tasks={tasks} onRestore={handleRestore} showRestore />
-            )}
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded dark:bg-red-900 dark:border-red-700 dark:text-red-200">
+            {error}
           </div>
-        </main>
-      </div>
+        )}
+
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          </div>
+        ) : (
+          <TaskList tasks={tasks} onRestore={handleRestore} showRestore />
+        )}
+      </AppShell>
     </AuthGuard>
   );
 }
