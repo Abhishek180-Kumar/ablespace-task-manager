@@ -3,30 +3,38 @@ import { Document, Types } from 'mongoose';
 
 export type TaskDocument = Task & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Task {
-  @Prop({ required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId!: Types.ObjectId;
+
+  @Prop({ required: true, trim: true })
   title!: string;
 
-  @Prop()
-  description?: string;
+  @Prop({ trim: true })
+  description!: string;
 
-  @Prop({ default: 'pending', enum: ['pending', 'in-progress', 'completed'] })
+  @Prop({
+    type: String,
+    enum: ['to-do', 'doing', 'completed', 'on-hold'],
+    default: 'to-do',
+  })
   status!: string;
 
-  @Prop({ default: 'medium', enum: ['low', 'medium', 'high'] })
+  @Prop({
+    type: String,
+    enum: ['none', 'low', 'medium', 'high', 'urgent'],
+    default: 'none',
+  })
   priority!: string;
 
-  @Prop()
-  dueDate?: Date;
+  @Prop({ type: Date })
+  dueDate!: Date;
 
   @Prop({ type: [String], default: [] })
   tags!: string[];
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  owner!: Types.ObjectId;
-
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   isDeleted!: boolean;
 }
 
