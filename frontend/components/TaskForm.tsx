@@ -1,21 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Task, QueryTaskDto } from '@/lib/api';
-import { STATUS_META, PRIORITY_META } from '@/lib/taskMeta';
+import { Task, CreateTaskDto } from '@/lib/api';
+import { STATUS_META, PRIORITY_META, TaskStatus, TaskPriority } from '@/lib/taskMeta';
 
 interface TaskFormProps {
   initialData?: Partial<Task>;
-  onSubmit: (data: Partial<Task>) => void;
+  onSubmit: (data: CreateTaskDto) => void;
   submitLabel?: string;
 }
 
 export default function TaskForm({ initialData, onSubmit, submitLabel = 'Save' }: TaskFormProps) {
-  const [title, setTitle] = useState(initialData.title || '');
-  const [description, setDescription] = useState(initialData.description || '');
-  const [status, setStatus] = useState(initialData.status || 'to-do');
-  const [priority, setPriority] = useState(initialData.priority || 'none');
-  const [dueDate, setDueDate] = useState(initialData.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [status, setStatus] = useState<TaskStatus>((initialData?.status as TaskStatus) || 'to-do');
+  const [priority, setPriority] = useState<TaskPriority>((initialData?.priority as TaskPriority) || 'none');
+  const [dueDate, setDueDate] = useState(initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ export default function TaskForm({ initialData, onSubmit, submitLabel = 'Save' }
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value as Task['status'])}
+            onChange={(e) => setStatus(e.target.value as TaskStatus)}
             className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
           >
             {Object.entries(STATUS_META).map(([val, meta]) => (
@@ -60,7 +60,7 @@ export default function TaskForm({ initialData, onSubmit, submitLabel = 'Save' }
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>
           <select
             value={priority}
-            onChange={(e) => setPriority(e.target.value as Task['priority'])}
+            onChange={(e) => setPriority(e.target.value as TaskPriority)}
             className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
           >
             {Object.entries(PRIORITY_META).map(([val, meta]) => (
@@ -80,7 +80,7 @@ export default function TaskForm({ initialData, onSubmit, submitLabel = 'Save' }
       </div>
       <button
         type="submit"
-        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent bg-accent-hover hover:var(--accent-hover) focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
         {submitLabel}
       </button>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Task } from '@/lib/api';
-import { STATUS_META, PRIORITY_META, STATUS_ORDER } from '@/lib/taskMeta';
+import { STATUS_META, PRIORITY_META, STATUS_ORDER, TaskStatus } from '@/lib/taskMeta';
 
 interface TaskListProps {
   tasks: Task[];
@@ -20,7 +20,7 @@ export default function TaskList({ tasks, onStatusChange, onDelete, onRestore, s
   const grouped = STATUS_ORDER.reduce((acc, status) => {
     acc[status] = tasks.filter(t => t.status === status);
     return acc;
-  }, {} as Record<string, Task[]>);
+  }, {} as Record<TaskStatus, Task[]>);
 
   return (
     <div className="space-y-6">

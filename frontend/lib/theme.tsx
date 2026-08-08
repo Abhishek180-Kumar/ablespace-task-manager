@@ -13,13 +13,15 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+export const noFlashThemeScript = `(function(){try{var t=localStorage.getItem('theme');var a=localStorage.getItem('accent')||'blue';if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark'){document.documentElement.classList.add('dark');}document.documentElement.setAttribute('data-accent',a);}catch(e){}})();`;
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
   const [accent, setAccent] = useState<Accent>('blue');
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem('theme') as Theme;
-    const storedAccent = localStorage.getItem('accent') as Accent;
+    const storedTheme = localStorage.getItem('theme') as Theme | null;
+    const storedAccent = localStorage.getItem('accent') as Accent | null;
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setTheme(storedTheme || (prefersDark ? 'dark' : 'light'));
     setAccent(storedAccent || 'blue');

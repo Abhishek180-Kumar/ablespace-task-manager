@@ -16,8 +16,8 @@ export interface Task {
   _id: string;
   title: string;
   description?: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
+  status: 'to-do' | 'doing' | 'on-hold' | 'completed';
+  priority: 'none' | 'low' | 'medium' | 'high' | 'urgent';
   dueDate?: string;
   tags: string[];
   owner: User;
@@ -70,9 +70,6 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
     credentials: 'include',
   });
 
-  // Read the body once as text, then decide how to parse it. Some responses
-  // (e.g. DELETE with a 204/empty body) have no JSON to parse at all — calling
-  // response.json() directly on those throws "Unexpected end of JSON input".
   const raw = await response.text();
   const data = raw ? JSON.parse(raw) : null;
 

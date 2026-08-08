@@ -1,7 +1,8 @@
 'use client';
 
-import { Task } from '@/lib/api';
 import Link from 'next/link';
+import { Task } from '@/lib/api';
+import { STATUS_META, PRIORITY_META, STATUS_ORDER, TaskStatus } from '@/lib/taskMeta';
 
 interface TaskBoardProps {
   tasks: Task[];
@@ -9,20 +10,8 @@ interface TaskBoardProps {
   onDelete?: (taskId: string) => void;
 }
 
-const COLUMNS: { key: Task['status']; label: string }[] = [
-  { key: 'pending', label: 'To Do' },
-  { key: 'in-progress', label: 'Doing' },
-  { key: 'completed', label: 'Completed' },
-];
-
-const priorityColors: Record<string, string> = {
-  low: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-  medium: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-  high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-};
-
 export default function TaskBoard({ tasks, onStatusChange, onDelete }: TaskBoardProps) {
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, status: Task['status']) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, status: TaskStatus) => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData('text/plain');
     if (taskId && onStatusChange) {
@@ -35,19 +24,19 @@ export default function TaskBoard({ tasks, onStatusChange, onDelete }: TaskBoard
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {COLUMNS.map((col) => {
-        const colTasks = tasks.filter((t) => t.status === col.key);
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {STATUS_ORDER.map((status) => {
+        const colTasks = tasks.filter((t) => t.status === status);
         return (
           <div
-            key={col.key}
+            key={status}
             onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => handleDrop(e, col.key)}
+            onDrop={(e) => handleDrop(e, status)}
             className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 min-h-[200px]"
           >
             <div className="flex items-center justify-between mb-3 px-1">
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                {col.label}
+                {STATUS_META[status].label}
               </h3>
               <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 px-2 py-0.5 rounded-full">
                 {colTasks.length}
@@ -82,11 +71,9 @@ export default function TaskBoard({ tasks, onStatusChange, onDelete }: TaskBoard
 
                   <div className="flex items-center gap-1.5 flex-wrap mt-2">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        priorityColors[task.priority] || 'bg-gray-100'
-                      }`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${PRIORITY_META[task.priority].color}`}
                     >
-                      {task.priority}
+                      {PRIORITY_META[task.priority].label}
                     </span>
                     {task.dueDate && (
                       <span className="text-xs text-gray-400 dark:text-gray-500">
