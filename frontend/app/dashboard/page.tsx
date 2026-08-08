@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import AuthGuard from '@/components/AuthGuard';
 import Navbar from '@/components/Navbar';
 import TaskList from '@/components/TaskList';
+import TaskBoard from '@/components/TaskBoard';
 import TaskForm from '@/components/TaskForm';
 import { api, Task, QueryTaskDto } from '@/lib/api';
 
@@ -14,6 +15,7 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [filters, setFilters] = useState<QueryTaskDto>({ page: 1, limit: 10 });
+  const [view, setView] = useState<'list' | 'board'>('list');
 
   const loadTasks = async () => {
     setIsLoading(true);
@@ -30,9 +32,8 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard async data-fetch-on-mount/filter-change pattern
     loadTasks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluding loadTasks (it's recreated each render but reads current filters via closure)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.page, filters.status, filters.priority]);
 
   const handleCreateTask = async (data: { title: string; description?: string; status?: string; priority?: string; dueDate?: string; tags?: string[] }) => {
@@ -76,12 +77,36 @@ export default function DashboardPage() {
           <div className="px-4 py-6 sm:px-0">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Tasks</h1>
-              <button
-                onClick={() => setShowForm(!showForm)}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-              >
-                {showForm ? 'Cancel' : 'New Task'}
-              </button>
+              <div className="flex items-center gap-3">
+                <div className="flex border border-gray-300 dark:border-gray-600 rounded-md overflow-hidden">
+                  <button
+                    onClick={() => setView('list')}
+                    className={`px-3 py-1.5 text-sm font-medium ${
+                      view === 'list'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                    }`}
+                  >
+                    List
+                  </button>
+                  <button
+                    onClick={() => setView('board')}
+                    className={`px-3 py-1.5 text-sm font-medium border-l border-gray-300 dark:border-gray-600 ${
+                      view === 'board'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'
+                    }`}
+                  >
+                    Board
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowForm(!showForm)}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                >
+                  {showForm ? 'Cancel' : 'New Task'}
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -135,13 +160,21 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                <TaskList
-                  tasks={tasks}
-                  onStatusChange={handleStatusChange}
-                  onDelete={handleDelete}
-                />
+                {view === 'list' ? (
+                  <TaskList
+                    tasks={tasks}
+                    onStatusChange={handleStatusChange}
+                    onDelete={handleDelete}
+                  />
+                ) : (
+                  <TaskBoard
+                    tasks={tasks}
+                    onStatusChange={handleStatusChange}
+                    onDelete={handleDelete}
+                  />
+                )}
 
-                {meta && meta.totalPages > 1 && (
+                {view === 'list' && meta && meta.totalPages > 1 && (
                   <div className="mt-4 flex justify-center gap-2">
                     <button
                       onClick={() => goToPage(meta.page - 1)}
