@@ -78,6 +78,18 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  async googleLogin(profile: { email: string; name: string }): Promise<AuthResponse> {
+    let user = await this.usersService.findByEmail(profile.email);
+    if (!user) {
+      user = await this.usersService.create({
+        name: profile.name,
+        email: profile.email,
+        isGuest: false,
+      });
+    }
+    return this.buildAuthResponse(user);
+  }
+
   private async seedGuestWorkspace(userId: string, userName: string) {
     const ownerId = new Types.ObjectId(userId);
     const project = await this.projectModel.create({
