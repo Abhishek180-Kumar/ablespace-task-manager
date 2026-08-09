@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useTheme, type Accent } from '@/lib/theme';
 
@@ -109,8 +109,30 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
   const [menuOpen, setMenuOpen] = useState(false);
   const [subMenu, setSubMenu] = useState<'theme' | 'color' | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const closeAllMenus = () => { setMenuOpen(false); setSubMenu(null); };
+  const clearCloseTimer = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
+  // Small delay before closing the submenu so moving the mouse diagonally
+  // across the gap toward the submenu doesn't accidentally close it.
+  const scheduleSubMenuClose = () => {
+    clearCloseTimer();
+    closeTimer.current = setTimeout(() => setSubMenu(null), 300);
+  };
+
+  const openSubMenu = (key: 'theme' | 'color') => {
+    clearCloseTimer();
+    setSubMenu(key);
+  };
+
+  useEffect(() => () => clearCloseTimer(), []);
+
+  const closeAllMenus = () => { clearCloseTimer(); setMenuOpen(false); setSubMenu(null); };
 
   if (!user) return null;
 
@@ -149,9 +171,13 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
         </div>
 
         {menuOpen && !collapsed && (
-          <div className="absolute left-3 right-3 top-[56px] z-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1" onMouseLeave={() => setSubMenu(null)}>
+          <div
+            className="absolute left-3 right-3 top-[56px] z-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+            onMouseEnter={clearCloseTimer}
+            onMouseLeave={scheduleSubMenuClose}
+          >
             {/* Change Theme */}
-            <div className="relative" onMouseEnter={() => setSubMenu('theme')}>
+            <div className="relative" onMouseEnter={() => openSubMenu('theme')}>
               <button
                 onClick={() => setSubMenu((v) => (v === 'theme' ? null : 'theme'))}
                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-sm ${subMenu === 'theme' ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'} text-gray-700 dark:text-gray-200`}
@@ -160,7 +186,13 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
                 <ChevronRightIcon className="h-3.5 w-3.5 text-gray-400" />
               </button>
               {subMenu === 'theme' && (
-                <div className="absolute left-full top-0 ml-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1 z-30">
+                <div
+                  className="absolute left-full top-0 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1 z-30"
+                  style={{ paddingLeft: 0, marginLeft: 0 }}
+                  onMouseEnter={clearCloseTimer}
+                >
+                  {/* invisible bridge to eliminate the hover dead-zone between trigger and submenu */}
+                  <div className="absolute right-full top-0 h-full w-3" />
                   <div className="px-3 pt-1.5 pb-1 text-xs font-medium text-gray-400">Theme</div>
                   <button onClick={() => { setTheme('light'); closeAllMenus(); }} className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                     <span className="flex items-center gap-2"><SunIcon className="h-4 w-4" /> Light</span>
@@ -175,7 +207,7 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
             </div>
 
             {/* Color Mode */}
-            <div className="relative" onMouseEnter={() => setSubMenu('color')}>
+            <div className="relative" onMouseEnter={() => openSubMenu('color')}>
               <button
                 onClick={() => setSubMenu((v) => (v === 'color' ? null : 'color'))}
                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-sm ${subMenu === 'color' ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'} text-gray-700 dark:text-gray-200`}
@@ -184,7 +216,13 @@ export default function Sidebar({ collapsed = false, onToggleCollapse }: Sidebar
                 <ChevronRightIcon className="h-3.5 w-3.5 text-gray-400" />
               </button>
               {subMenu === 'color' && (
-                <div className="absolute left-full top-0 ml-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1 z-30">
+                <div
+                  className="absolute left-full top-0 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1 z-30"
+                  style={{ paddingLeft: 0, marginLeft: 0 }}
+                  onMouseEnter={clearCloseTimer}
+                >
+                  {/* invisible bridge to eliminate the hover dead-zone between trigger and submenu */}
+                  <div className="absolute right-full top-0 h-full w-3" />
                   <div className="px-3 pt-1.5 pb-1 text-xs font-medium text-gray-400">Color Mode</div>
                   {Object.entries(ACCENT_COLORS).map(([name, color]) => (
                     <button key={name} onClick={() => { setAccent(name as Accent); closeAllMenus(); }} className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
