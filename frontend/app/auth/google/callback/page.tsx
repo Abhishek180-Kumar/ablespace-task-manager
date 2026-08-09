@@ -1,29 +1,34 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 
 function GoogleCallbackInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const token = searchParams.get('token');
     const userParam = searchParams.get('user');
+
     if (token && userParam) {
       try {
         const user = JSON.parse(userParam);
         login(token, user);
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
       } catch {
-        router.push('/login?error=google_auth_failed');
+        window.location.href = '/login?error=google_auth_failed';
       }
     } else {
-      router.push('/login?error=google_auth_failed');
+      window.location.href = '/login?error=google_auth_failed';
     }
-  }, [searchParams, login, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <main className="flex min-h-screen items-center justify-center">
