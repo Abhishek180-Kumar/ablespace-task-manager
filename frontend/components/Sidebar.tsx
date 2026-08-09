@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: '/dashboard', label: 'Tasks', icon: 'tasks' },
   { href: '/projects', label: 'Projects', icon: 'projects' },
   { href: '/tasks/trash', label: 'Trash', icon: 'trash' },
-  { href: '/settings', label: 'Settings', icon: 'settings' },
+  { href: '/settings', label: 'Password', icon: 'settings' },
 ];
 
 function NavIcon({ name, className }: { name: string; className?: string }) {
@@ -160,7 +160,7 @@ export default function Sidebar() {
                 onClick={() => setMenuOpen(false)}
                 className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
               >
-                Settings
+                Password
               </Link>
               <button
                 onClick={logout}
