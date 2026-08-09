@@ -97,7 +97,6 @@ export default function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Password"
