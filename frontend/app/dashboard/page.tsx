@@ -32,6 +32,7 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- data fetch on mount/change
     loadTasks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.page, filters.status, filters.priority]);

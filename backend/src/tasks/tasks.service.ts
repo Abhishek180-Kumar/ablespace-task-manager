@@ -2,8 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Task } from '../users/schemas/task.schema';
-import { CreateTaskDto, UpdateTaskDto, QueryTaskDto } from './dto/create-task.dto';
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  QueryTaskDto,
+} from './dto/create-task.dto';
 
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 @Injectable()
 export class TasksService {
   constructor(@InjectModel(Task.name) private taskModel: Model<Task>) {}
@@ -17,7 +22,10 @@ export class TasksService {
   }
 
   async findAll(query: QueryTaskDto, userId: string) {
-    const filter: any = { userId: new Types.ObjectId(userId), isDeleted: false };
+    const filter: any = {
+      userId: new Types.ObjectId(userId),
+      isDeleted: false,
+    };
 
     if (query.status) filter.status = query.status;
     if (query.priority) filter.priority = query.priority;
@@ -27,49 +35,68 @@ export class TasksService {
     const limit = parseInt(query.limit || '10', 10);
     const skip = (page - 1) * limit;
 
-    const data = await this.taskModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).exec();
+    const data = await this.taskModel
+      .find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .exec();
     const total = await this.taskModel.countDocuments(filter);
 
-    return { data, meta: { total, page, totalPages: Math.ceil(total / limit) } };
+    return {
+      data,
+      meta: { total, page, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async findDeleted(userId: string) {
-    return this.taskModel.find({ userId: new Types.ObjectId(userId), isDeleted: true }).exec();
+    return this.taskModel
+      .find({ userId: new Types.ObjectId(userId), isDeleted: true })
+      .exec();
   }
 
   async findOne(id: string, userId: string) {
-    const task = await this.taskModel.findOne({ _id: id, userId: new Types.ObjectId(userId) }).exec();
+    const task = await this.taskModel
+      .findOne({ _id: id, userId: new Types.ObjectId(userId) })
+      .exec();
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
-    const task = await this.taskModel.findOneAndUpdate(
-      { _id: id, userId: new Types.ObjectId(userId) },
-      updateTaskDto,
-      { new: true }
-    ).exec();
+    const task = await this.taskModel
+      .findOneAndUpdate(
+        { _id: id, userId: new Types.ObjectId(userId) },
+        updateTaskDto,
+        { new: true },
+      )
+      .exec();
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
 
   async remove(id: string, userId: string) {
-    const task = await this.taskModel.findOneAndUpdate(
-      { _id: id, userId: new Types.ObjectId(userId) },
-      { isDeleted: true },
-      { new: true }
-    ).exec();
+    const task = await this.taskModel
+      .findOneAndUpdate(
+        { _id: id, userId: new Types.ObjectId(userId) },
+        { isDeleted: true },
+        { new: true },
+      )
+      .exec();
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
 
   async restore(id: string, userId: string) {
-    const task = await this.taskModel.findOneAndUpdate(
-      { _id: id, userId: new Types.ObjectId(userId) },
-      { isDeleted: false },
-      { new: true }
-    ).exec();
+    const task = await this.taskModel
+      .findOneAndUpdate(
+        { _id: id, userId: new Types.ObjectId(userId) },
+        { isDeleted: false },
+        { new: true },
+      )
+      .exec();
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
 }
+/* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */

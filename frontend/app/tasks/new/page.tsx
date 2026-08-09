@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation';
 import AuthGuard from '@/components/AuthGuard';
 import AppShell from '@/components/AppShell';
 import TaskForm from '@/components/TaskForm';
-import { api } from '@/lib/api';
+import { api, CreateTaskDto } from '@/lib/api';
 
 export default function NewTaskPage() {
   const router = useRouter();
   const [error, setError] = useState('');
 
-  const handleCreate = async (data: any) => {
+  const handleCreate = async (data: CreateTaskDto) => {
     try {
       await api.tasks.create(data);
       router.push('/dashboard');

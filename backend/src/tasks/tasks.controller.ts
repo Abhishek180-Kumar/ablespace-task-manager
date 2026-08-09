@@ -1,7 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto, UpdateTaskDto, QueryTaskDto } from './dto/create-task.dto';
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  QueryTaskDto,
+} from './dto/create-task.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('tasks')
@@ -10,7 +25,10 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto, @Req() req: AuthenticatedRequest) {
+  create(
+    @Body() createTaskDto: CreateTaskDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.tasksService.create(createTaskDto, req.user.userId);
   }
 
@@ -30,7 +48,11 @@ export class TasksController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto, @Req() req: AuthenticatedRequest) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.tasksService.update(id, updateTaskDto, req.user.userId);
   }
 

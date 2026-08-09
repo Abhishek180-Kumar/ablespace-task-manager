@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import AuthGuard from '@/components/AuthGuard';
 import AppShell from '@/components/AppShell';
 import TaskForm from '@/components/TaskForm';
-import { api, Task } from '@/lib/api';
+import { api, Task, UpdateTaskDto } from '@/lib/api';
 
 export default function EditTaskPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -18,14 +18,14 @@ export default function EditTaskPage({ params }: { params: Promise<{ id: string 
       try {
         const data = await api.tasks.findOne(id);
         setTask(data);
-      } catch (err) {
+      } catch {
         setError('Failed to load task');
       }
     };
     loadTask();
   }, [id]);
 
-  const handleUpdate = async (data: any) => {
+  const handleUpdate = async (data: UpdateTaskDto) => {
     try {
       await api.tasks.update(id, data);
       router.push('/dashboard');
