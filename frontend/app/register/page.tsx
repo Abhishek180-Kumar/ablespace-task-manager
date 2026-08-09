@@ -95,6 +95,7 @@ export default function RegisterPage() {
                 id="password"
                 name="password"
                 type="password"
+                autoComplete="new-password"
                 required
                 autoComplete="new-password"
                 value={password}
@@ -110,6 +111,7 @@ export default function RegisterPage() {
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
+                autoComplete="new-password"
                 required
                 autoComplete="new-password"
                 value={confirmPassword}
