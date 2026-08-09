@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Palette, Type, Sun, Moon, Settings } from 'lucide-react';
+import { ArrowLeft, Search, User as UserIcon, Settings as SettingsIcon, Square, Sun, Moon, Settings } from 'lucide-react';
 import AuthGuard from '@/components/AuthGuard';
 import AppShell from '@/components/AppShell';
 import Modal from '@/components/Modal';
@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const { theme, toggleTheme, accent, setAccent } = useTheme();
   const [tab, setTab] = useState<Tab>('profile');
 
+  const [search, setSearch] = useState('');
   const [user, setUser] = useState<User | null>(authUser);
   const [name, setName] = useState(authUser?.name || '');
   const [email, setEmail] = useState(authUser?.email || '');
@@ -67,6 +68,13 @@ export default function ProfilePage() {
         : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
     }`;
 
+  const NAV_ENTRIES = [
+    { key: 'profile' as Tab, label: 'Profile', icon: UserIcon },
+    { key: 'theme' as Tab, label: 'Theme', icon: SettingsIcon },
+    { key: 'color' as Tab, label: 'Color', icon: Square },
+  ];
+  const visibleEntries = NAV_ENTRIES.filter((entry) => entry.label.toLowerCase().includes(search.toLowerCase()));
+
   return (
     <AuthGuard>
       <AppShell>
@@ -75,15 +83,24 @@ export default function ProfilePage() {
             <Link href="/dashboard" className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-950 dark:text-gray-300 dark:hover:text-white">
               <ArrowLeft className="h-4 w-4" /> Back to app
             </Link>
-            <button type="button" onClick={() => setTab('profile')} className={tabClass(tab === 'profile') + ' w-full text-left'}>
-              Profile
-            </button>
-            <button type="button" onClick={() => setTab('theme')} className={tabClass(tab === 'theme') + ' w-full text-left'}>
-              <Palette className="h-4 w-4" /> Theme
-            </button>
-            <button type="button" onClick={() => setTab('color')} className={tabClass(tab === 'color') + ' w-full text-left'}>
-              <Type className="h-4 w-4" /> Color
-            </button>
+            <div className="relative mb-3">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search"
+                className="w-full rounded-md border border-gray-200 bg-white py-1.5 pl-8 pr-3 text-sm text-gray-700 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+              />
+            </div>
+            {visibleEntries.map(({ key, label, icon: Icon }) => (
+              <button key={key} type="button" onClick={() => setTab(key)} className={tabClass(tab === key) + ' w-full text-left'}>
+                <Icon className="h-4 w-4" /> {label}
+              </button>
+            ))}
+            {visibleEntries.length === 0 && (
+              <p className="px-3 py-2 text-xs text-gray-400">No results</p>
+            )}
             <Link href="/settings" className="flex items-center gap-2 rounded-md px-3 py-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
               <Settings className="h-4 w-4" /> Password
             </Link>
