@@ -30,6 +30,7 @@ export class TasksService {
     if (query.status) filter.status = query.status;
     if (query.priority) filter.priority = query.priority;
     if (query.search) filter.title = { $regex: query.search, $options: 'i' };
+    if (query.projectId) filter.projectId = query.projectId;
 
     const page = parseInt(query.page || '1', 10);
     const limit = parseInt(query.limit || '10', 10);

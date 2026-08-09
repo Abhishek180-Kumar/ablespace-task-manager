@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import AuthGuard from '@/components/AuthGuard';
 import AppShell from '@/components/AppShell';
 import { api } from '@/lib/api';
+import { PRIORITY_META, PRIORITY_ORDER, TaskPriority } from '@/lib/taskMeta';
 
 export default function EditProjectPage() {
   const params = useParams();
@@ -13,6 +14,9 @@ export default function EditProjectPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('active');
+  const [priority, setPriority] = useState<TaskPriority>('none');
+  const [lead, setLead] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -23,7 +27,10 @@ export default function EditProjectPage() {
         const data = await api.projects.findOne(id);
         setName(data.name);
         setDescription(data.description || '');
-        setStatus(data.status);
+        setStatus(data.status || 'active');
+        setPriority(data.priority || 'none');
+        setLead(data.lead || '');
+        setDueDate(data.dueDate ? new Date(data.dueDate).toISOString().split('T')[0] : '');
       } catch {
         setError('Failed to load project');
       } finally {
@@ -38,7 +45,7 @@ export default function EditProjectPage() {
     setError('');
     setIsLoading(true);
     try {
-      await api.projects.update(id, { name, description, status });
+      await api.projects.update(id, { name, description, status, priority, lead, dueDate: dueDate || undefined });
       router.push('/projects');
     } catch {
       setError('Failed to update project');
@@ -85,16 +92,52 @@ export default function EditProjectPage() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              >
-                <option value="active">Active</option>
-                <option value="archived">Archived</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                  className="border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                >
+                  {PRIORITY_ORDER.map((p) => (
+                    <option key={p} value={p}>{PRIORITY_META[p].label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                >
+                  <option value="active">Active</option>
+                  <option value="backlog">Backlog</option>
+                  <option value="completed">Completed</option>
+                  <option value="on-hold">On Hold</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lead</label>
+                <input
+                  type="text"
+                  value={lead}
+                  onChange={(e) => setLead(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+              </div>
             </div>
             <div className="flex gap-3">
               <button

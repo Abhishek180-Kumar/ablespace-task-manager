@@ -38,8 +38,60 @@ export class Task {
   @Prop({ type: [String], default: [] })
   tags!: string[];
 
+  @Prop({ type: String })
+  projectId?: string;
+
+  @Prop({
+    type: [
+      {
+        title: { type: String, required: true },
+        completed: { type: Boolean, default: false },
+        priority: { type: String, default: 'none' },
+        assignee: { type: String },
+        dueDate: { type: Date },
+      },
+    ],
+    default: [],
+  })
+  subtasks!: Array<{
+    title: string;
+    completed: boolean;
+    priority?: string;
+    assignee?: string;
+    dueDate?: Date;
+  }>;
+
+  @Prop({
+    type: [
+      {
+        userId: { type: String },
+        text: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    default: [],
+  })
+  comments!: Array<{ userId?: string; text: string; createdAt: Date }>;
+
+  @Prop({
+    type: [
+      {
+        title: { type: String, required: true },
+        url: { type: String, required: true },
+        description: { type: String },
+      },
+    ],
+    default: [],
+  })
+  resources!: Array<{ title: string; url: string; description?: string }>;
+
   @Prop({ type: Boolean, default: false })
   isDeleted!: boolean;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);
+
+TaskSchema.index({ userId: 1, createdAt: -1 });
+TaskSchema.index({ userId: 1, status: 1 });
+TaskSchema.index({ userId: 1, priority: 1 });
+TaskSchema.index({ userId: 1, projectId: 1 });

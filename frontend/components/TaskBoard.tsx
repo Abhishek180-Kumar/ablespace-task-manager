@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Task } from '@/lib/api';
+import { X } from 'lucide-react';
 import { STATUS_META, PRIORITY_META, STATUS_ORDER, TaskStatus } from '@/lib/taskMeta';
 
 interface TaskBoardProps {
@@ -53,7 +54,7 @@ export default function TaskBoard({ tasks, onStatusChange, onDelete }: TaskBoard
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <Link
-                      href={`/tasks/${task._id}/edit`}
+                      href={`/tasks/${task._id}`}
                       className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2"
                     >
                       {task.title}
@@ -64,7 +65,7 @@ export default function TaskBoard({ tasks, onStatusChange, onDelete }: TaskBoard
                         className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 text-xs shrink-0"
                         aria-label="Delete task"
                       >
-                        ✕
+                        <X className="h-4 w-4" />
                       </button>
                     )}
                   </div>

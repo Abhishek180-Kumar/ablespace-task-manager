@@ -4,10 +4,9 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Sabse simple aur guaranteed CORS fix
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
   app.enableCors({
-    origin: true, // Ye sabhi origins ko allow karega (dev ke liye perfect)
+    origin: corsOrigin.split(',').map((origin) => origin.trim()),
     credentials: true,
   });
 

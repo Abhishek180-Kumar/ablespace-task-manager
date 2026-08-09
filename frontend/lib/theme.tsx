@@ -1,10 +1,17 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Theme = 'light' | 'dark';
-type Accent = 'blue' | 'amber' | 'pink' | 'rose' | 'emerald' | 'black';
+export type Theme = 'light' | 'dark';
+export const ACCENT_COLORS = {
+  blue: '#3b82f6',
+  amber: '#f59e0b',
+  pink: '#ec4899',
+  rose: '#f43f5e',
+  emerald: '#10b981',
+  black: '#1f2937',
+} as const;
 
-export type { Theme, Accent };
+export type Accent = keyof typeof ACCENT_COLORS;
 
 interface ThemeContextType {
   theme: Theme;

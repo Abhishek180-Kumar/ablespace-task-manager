@@ -2,9 +2,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   email: string;
   isGuest: boolean;
+  username?: string;
+  position?: string;
 }
 
 export interface AuthResponse {
@@ -25,8 +28,9 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   projectId?: string;
-  subtasks?: { title: string; completed: boolean }[];
+  subtasks?: { title: string; completed: boolean; priority?: Task['priority']; assignee?: string; dueDate?: string }[];
   comments?: { userId: string; text: string; createdAt: string }[];
+  resources?: { title: string; url: string; description?: string }[];
 }
 
 export interface PaginatedTasks {
@@ -68,6 +72,10 @@ export interface Project {
   name: string;
   description?: string;
   status: string;
+  priority: 'none' | 'low' | 'medium' | 'high' | 'urgent';
+  lead?: string;
+  dueDate?: string;
+  labels?: string[];
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -77,12 +85,17 @@ export interface CreateProjectDto {
   name: string;
   description?: string;
   status?: string;
+  priority?: string;
+  lead?: string;
+  dueDate?: string;
+  labels?: string[];
 }
 
 export type UpdateProjectDto = Partial<CreateProjectDto>;
 
 export interface QueryProjectDto {
   status?: string;
+  priority?: string;
   search?: string;
   page?: number;
   limit?: number;
@@ -146,7 +159,7 @@ export const api = {
   },
   users: {
     getMe: () => apiClient('/users/me'),
-    updateProfile: (data: { name?: string; email?: string }) =>
+    updateProfile: (data: { name?: string; email?: string; username?: string; position?: string }) =>
       apiClient('/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
     changePassword: (data: { currentPassword: string; newPassword: string }) =>
       apiClient('/users/me/password', { method: 'PATCH', body: JSON.stringify(data) }),

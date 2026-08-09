@@ -16,6 +16,12 @@ export class User {
 
   @Prop({ default: false })
   isGuest!: boolean;
+
+  @Prop({ trim: true })
+  username?: string;
+
+  @Prop({ trim: true })
+  position?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
