@@ -8,7 +8,7 @@ import Modal from '@/components/Modal';
 import DatePicker from '@/components/DatePicker';
 import { api, Task } from '@/lib/api';
 import { STATUS_META, PRIORITY_META, STATUS_ORDER, PRIORITY_ORDER } from '@/lib/taskMeta';
-import { ChevronDown, Plus, Trash2, Link as LinkIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, Trash2, Link as LinkIcon, X } from 'lucide-react';
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -24,6 +24,10 @@ export default function TaskDetailPage() {
   const [priorityOpen, setPriorityOpen] = useState(false);
   const [resourceOpen, setResourceOpen] = useState(false);
   const [resourceDraft, setResourceDraft] = useState({ title: '', url: '', description: '' });
+  const [detailsOpen, setDetailsOpen] = useState(true);
+  const [memberDraft, setMemberDraft] = useState('');
+  const [labelDraft, setLabelDraft] = useState('');
+  const [reporterDraft, setReporterDraft] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -43,10 +47,42 @@ export default function TaskDetailPage() {
     return () => { cancelled = true; };
   }, [id]);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync local draft when a different task loads
+    if (task) setReporterDraft(task.reporter || '');
+  }, [task]);
+
   const updateTask = async (data: Partial<Task>) => {
     if (!task) return;
     const updated = await api.tasks.update(task._id, data);
     setTask(updated);
+  };
+
+  const addMember = () => {
+    if (!memberDraft.trim() || !task) return;
+    updateTask({ members: [...(task.members || []), memberDraft.trim()] } as Partial<Task>);
+    setMemberDraft('');
+  };
+
+  const removeMember = (idx: number) => {
+    if (!task) return;
+    updateTask({ members: (task.members || []).filter((_, i) => i !== idx) } as Partial<Task>);
+  };
+
+  const addLabel = () => {
+    if (!labelDraft.trim() || !task) return;
+    updateTask({ tags: [...(task.tags || []), labelDraft.trim()] } as Partial<Task>);
+    setLabelDraft('');
+  };
+
+  const removeLabel = (idx: number) => {
+    if (!task) return;
+    updateTask({ tags: (task.tags || []).filter((_, i) => i !== idx) } as Partial<Task>);
+  };
+
+  const saveReporter = () => {
+    if (!task) return;
+    updateTask({ reporter: reporterDraft.trim() || undefined } as Partial<Task>);
   };
 
   const addSubtask = async () => {
@@ -241,63 +277,145 @@ export default function TaskDetailPage() {
 
             <div className="space-y-4">
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Status</h3>
-                <div className="relative">
-                  <button onClick={() => { setStatusOpen((v) => !v); setPriorityOpen(false); }} className="inline-flex w-full items-center justify-between rounded-md border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_META[task.status as keyof typeof STATUS_META]?.color || 'bg-gray-100'}`}>
-                      {STATUS_META[task.status as keyof typeof STATUS_META]?.label || task.status}
-                    </span>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </button>
-                  {statusOpen && (
-                    <div className="absolute left-0 right-0 z-20 mt-1 rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
-                      {STATUS_ORDER.map((s) => (
-                        <button key={s} onClick={() => { updateTask({ status: s }); setStatusOpen(false); }} className={`flex w-full items-center rounded px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${task.status === s ? 'font-medium' : ''}`}>
-                          {STATUS_META[s].label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+                <button onClick={() => setDetailsOpen((v) => !v)} className="flex w-full items-center justify-between mb-1">
+                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Details</h3>
+                  {detailsOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                </button>
 
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Priority</h3>
-                <div className="relative">
-                  <button onClick={() => { setPriorityOpen((v) => !v); setStatusOpen(false); }} className="inline-flex w-full items-center justify-between rounded-md border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_META[task.priority as keyof typeof PRIORITY_META]?.color || 'bg-gray-100'}`}>
-                      {PRIORITY_META[task.priority as keyof typeof PRIORITY_META]?.label || task.priority}
-                    </span>
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </button>
-                  {priorityOpen && (
-                    <div className="absolute left-0 right-0 z-20 mt-1 rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
-                      {PRIORITY_ORDER.map((p) => (
-                        <button key={p} onClick={() => { updateTask({ priority: p }); setPriorityOpen(false); }} className={`flex w-full items-center rounded px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${task.priority === p ? 'font-medium' : ''}`}>
-                          {PRIORITY_META[p].label}
+                {detailsOpen && (
+                  <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                    {/* Status */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Status</span>
+                      <div className="relative">
+                        <button onClick={() => { setStatusOpen((v) => !v); setPriorityOpen(false); }} className="inline-flex items-center gap-1">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_META[task.status as keyof typeof STATUS_META]?.color || 'bg-gray-100'}`}>
+                            {STATUS_META[task.status as keyof typeof STATUS_META]?.label || task.status}
+                          </span>
+                          <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
                         </button>
-                      ))}
+                        {statusOpen && (
+                          <div className="absolute right-0 z-20 mt-1 w-40 rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                            {STATUS_ORDER.map((s) => (
+                              <button key={s} onClick={() => { updateTask({ status: s }); setStatusOpen(false); }} className={`flex w-full items-center rounded px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${task.status === s ? 'font-medium' : ''}`}>
+                                {STATUS_META[s].label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Dates</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Due Date</label>
-                    <DatePicker
-                      value={task.dueDate}
-                      onChange={(value) => updateTask({ dueDate: value || undefined })}
-                    />
+                    {/* Priority */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Priority</span>
+                      <div className="relative">
+                        <button onClick={() => { setPriorityOpen((v) => !v); setStatusOpen(false); }} className="inline-flex items-center gap-1">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_META[task.priority as keyof typeof PRIORITY_META]?.color || 'bg-gray-100'}`}>
+                            {PRIORITY_META[task.priority as keyof typeof PRIORITY_META]?.label || task.priority}
+                          </span>
+                          <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                        </button>
+                        {priorityOpen && (
+                          <div className="absolute right-0 z-20 mt-1 w-40 rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                            {PRIORITY_ORDER.map((p) => (
+                              <button key={p} onClick={() => { updateTask({ priority: p }); setPriorityOpen(false); }} className={`flex w-full items-center rounded px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${task.priority === p ? 'font-medium' : ''}`}>
+                                {PRIORITY_META[p].label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Members */}
+                    <div className="py-2.5">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Members</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {(task.members || []).map((m, idx) => (
+                          <span key={idx} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                            {m}
+                            <button onClick={() => removeMember(idx)} className="text-gray-400 hover:text-red-600"><X className="h-3 w-3" /></button>
+                          </span>
+                        ))}
+                        {(task.members || []).length === 0 && task.owner?.name && (
+                          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">{task.owner.name}</span>
+                        )}
+                      </div>
+                      <form onSubmit={(e) => { e.preventDefault(); addMember(); }} className="mt-2 flex gap-1.5">
+                        <input value={memberDraft} onChange={(e) => setMemberDraft(e.target.value)} placeholder="Add member name..." className="flex-1 min-w-0 rounded-md border border-gray-200 px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                        <button type="submit" className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"><Plus className="h-3 w-3" /> Add members</button>
+                      </form>
+                    </div>
+
+                    {/* Dates */}
+                    <div className="py-2.5">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Dates</span>
+                      </div>
+                      <DatePicker
+                        value={task.dueDate}
+                        onChange={(value) => updateTask({ dueDate: value || undefined })}
+                      />
+                    </div>
+
+                    {/* Labels */}
+                    <div className="py-2.5">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Labels</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {(task.tags || []).map((t, idx) => (
+                          <span key={idx} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+                            {t}
+                            <button onClick={() => removeLabel(idx)} className="text-gray-400 hover:text-red-600"><X className="h-3 w-3" /></button>
+                          </span>
+                        ))}
+                      </div>
+                      <form onSubmit={(e) => { e.preventDefault(); addLabel(); }} className="mt-2 flex gap-1.5">
+                        <input value={labelDraft} onChange={(e) => setLabelDraft(e.target.value)} placeholder="Add label..." className="flex-1 min-w-0 rounded-md border border-gray-200 px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                        <button type="submit" className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"><Plus className="h-3 w-3" /> Add</button>
+                      </form>
+                    </div>
+
+                    {/* Reporter */}
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Reporter</span>
+                      <input
+                        value={reporterDraft}
+                        onChange={(e) => setReporterDraft(e.target.value)}
+                        onBlur={saveReporter}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); (e.target as HTMLInputElement).blur(); } }}
+                        placeholder="Unassigned"
+                        className="w-32 rounded-md border border-transparent bg-transparent px-2 py-1 text-right text-sm text-gray-900 outline-none hover:border-gray-200 focus:border-gray-300 dark:text-white dark:hover:border-gray-700"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
+              {/* Updates / Activity */}
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
-                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Members</h3>
-                <p className="text-sm text-gray-900 dark:text-white">{task.owner?.name || 'Unassigned'}</p>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Updates</h3>
+                {(task.comments || []).length === 0 ? (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No updates yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {(task.comments || []).slice(-5).reverse().map((c, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <div className="h-6 w-6 shrink-0 rounded-full bg-accent text-[10px] font-semibold text-white flex items-center justify-center">
+                          {(task.owner?.name || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-gray-700 dark:text-gray-300"><span className="font-medium text-gray-900 dark:text-white">{task.owner?.name || 'You'}</span> posted an update</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(c.createdAt).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

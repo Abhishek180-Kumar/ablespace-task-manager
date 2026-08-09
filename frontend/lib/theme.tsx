@@ -17,6 +17,7 @@ interface ThemeContextType {
   theme: Theme;
   accent: Accent;
   toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
   setAccent: (accent: Accent) => void;
 }
 
@@ -55,7 +56,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [accent]);
 
   return (
-    <ThemeContext.Provider value={{ theme, accent, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'), setAccent }}>
+    <ThemeContext.Provider value={{ theme, accent, toggleTheme: () => setTheme(t => t === 'light' ? 'dark' : 'light'), setTheme, setAccent }}>
       {children}
     </ThemeContext.Provider>
   );
