@@ -82,6 +82,15 @@ export class CreateTaskDto {
   tags?: string[];
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  members?: string[];
+
+  @IsOptional()
+  @IsString()
+  reporter?: string;
+
+  @IsOptional()
   @IsString()
   projectId?: string;
 }
@@ -111,6 +120,15 @@ export class UpdateTaskDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  members?: string[];
+
+  @IsOptional()
+  @IsString()
+  reporter?: string;
 
   @IsOptional()
   @IsString()

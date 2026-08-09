@@ -36,6 +36,9 @@ export class Project {
 
   @Prop({ type: [String], default: [] })
   labels!: string[];
+
+  @Prop({ type: [String], default: [] })
+  members!: string[];
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

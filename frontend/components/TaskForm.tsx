@@ -16,10 +16,22 @@ export default function TaskForm({ initialData, onSubmit, submitLabel = 'Save' }
   const [status, setStatus] = useState<TaskStatus>((initialData?.status as TaskStatus) || 'to-do');
   const [priority, setPriority] = useState<TaskPriority>((initialData?.priority as TaskPriority) || 'none');
   const [dueDate, setDueDate] = useState(initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '');
+  const [tags, setTags] = useState((initialData?.tags || []).join(', '));
+  const [members, setMembers] = useState((initialData?.members || []).join(', '));
+  const [reporter, setReporter] = useState(initialData?.reporter || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ title, description, status, priority, dueDate });
+    onSubmit({
+      title,
+      description,
+      status,
+      priority,
+      dueDate,
+      tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+      members: members.split(',').map((m) => m.trim()).filter(Boolean),
+      reporter: reporter.trim() || undefined,
+    });
   };
 
   return (
@@ -77,6 +89,40 @@ export default function TaskForm({ initialData, onSubmit, submitLabel = 'Save' }
             className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
           />
         </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Members</label>
+          <input
+            type="text"
+            value={members}
+            onChange={(e) => setMembers(e.target.value)}
+            placeholder="e.g. Alice, Bob"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+          />
+          <p className="mt-1 text-xs text-gray-400">Comma-separated names</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Reporter</label>
+          <input
+            type="text"
+            value={reporter}
+            onChange={(e) => setReporter(e.target.value)}
+            placeholder="e.g. Alice"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+          />
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Labels</label>
+        <input
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="e.g. Design, Frontend"
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+        />
+        <p className="mt-1 text-xs text-gray-400">Comma-separated labels</p>
       </div>
       <button
         type="submit"

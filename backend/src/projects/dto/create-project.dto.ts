@@ -34,6 +34,11 @@ export class CreateProjectDto {
   @IsArray()
   @IsString({ each: true })
   labels?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  members?: string[];
 }
 
 export class UpdateProjectDto {
@@ -65,6 +70,11 @@ export class UpdateProjectDto {
   @IsArray()
   @IsString({ each: true })
   labels?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  members?: string[];
 }
 
 export class QueryProjectDto {

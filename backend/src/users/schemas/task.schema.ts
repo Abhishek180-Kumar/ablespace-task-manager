@@ -38,6 +38,12 @@ export class Task {
   @Prop({ type: [String], default: [] })
   tags!: string[];
 
+  @Prop({ type: [String], default: [] })
+  members!: string[];
+
+  @Prop({ trim: true })
+  reporter?: string;
+
   @Prop({ type: String })
   projectId?: string;
 

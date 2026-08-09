@@ -23,6 +23,8 @@ export interface Task {
   priority: 'none' | 'low' | 'medium' | 'high' | 'urgent';
   dueDate?: string;
   tags: string[];
+  members: string[];
+  reporter?: string;
   owner: User;
   isDeleted: boolean;
   createdAt: string;
@@ -50,6 +52,8 @@ export interface CreateTaskDto {
   priority?: string;
   dueDate?: string;
   tags?: string[];
+  members?: string[];
+  reporter?: string;
   projectId?: string;
 }
 
@@ -76,6 +80,7 @@ export interface Project {
   lead?: string;
   dueDate?: string;
   labels?: string[];
+  members?: string[];
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -89,6 +94,7 @@ export interface CreateProjectDto {
   lead?: string;
   dueDate?: string;
   labels?: string[];
+  members?: string[];
 }
 
 export type UpdateProjectDto = Partial<CreateProjectDto>;
@@ -161,7 +167,7 @@ export const api = {
     getMe: () => apiClient('/users/me'),
     updateProfile: (data: { name?: string; email?: string; username?: string; position?: string }) =>
       apiClient('/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
-    changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    changePassword: (data: { currentPassword: string; newPassword:string }) =>
       apiClient('/users/me/password', { method: 'PATCH', body: JSON.stringify(data) }),
   },
   projects: {
@@ -182,10 +188,10 @@ export const api = {
     findOne: (id: string) => apiClient(`/projects/${id}`) as Promise<Project>,
     update: (id: string, data: UpdateProjectDto) =>
       apiClient(`/projects/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-    remove: (id: string) => apiClient(`/projects/${id}`, { method: 'DELETE' }),
+    remove: (id: string) => apiClient(`/projects/${id}`, { method:'DELETE' }),
   },
   tasks: {
-    create: (data: CreateTaskDto) => apiClient('/tasks', { method: 'POST', body: JSON.stringify(data) }),
+    create: (data: CreateTaskDto) => apiClient('/tasks', { method:'POST', body: JSON.stringify(data) }),
     findAll: (params?: QueryTaskDto) => {
       const query = new URLSearchParams();
       if (params) {
