@@ -1,86 +1,246 @@
 # AbleSpace Task Manager
 
-A full-stack task management system built for the AbleSpace Full Stack Developer assessment.
+A full-stack task management system built for the **AbleSpace Full Stack Developer assessment**. The application provides authenticated task and project management with Board/List views, task details, filtering, search, themes, responsive layouts, and a NestJS + MongoDB backend.
 
 ## Live Links
 
 - **Frontend (Vercel):** https://ablespace-task-manager-beta.vercel.app/
 - **Backend API (Render):** https://ablespace-task-manager.onrender.com
-- **GitHub Repo:** https://github.com/Abhishek180-Kumar/ablespace-task-manager
+- **GitHub Repository:** https://github.com/Abhishek180-Kumar/ablespace-task-manager
 
-> **Note on cold start:** The backend is hosted on Render's free tier, which spins down after periods of inactivity. The **first request after inactivity can take 30-50 seconds** to respond while the server wakes up. Subsequent requests are fast. Please wait on the first load — this is a free-tier hosting limitation, not a bug.
+> **Note on cold start:** The backend is hosted on Render's free tier. After a period of inactivity, the first request may take longer while the server wakes up. Subsequent requests are normally faster. This is a hosting-tier limitation rather than an application error.
 
 ## Tech Stack
 
-- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS
+- **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS
 - **Backend:** NestJS, TypeScript
-- **Database:** MongoDB (Mongoose)
-- **Auth:** JWT-based auth with Guest Login support
-- **Deployment:** Vercel (frontend), Render (backend)
+- **Database:** MongoDB with Mongoose
+- **Authentication:** JWT-based authentication with Guest Login support
+- **Icons:** Lucide
+- **Deployment:** Vercel (frontend) and Render (backend)
 
 ## Features
 
-- Email/password auth + Guest Login (no signup required to try the app)
-- Full Task CRUD: create, edit, delete, status updates (Pending / In Progress / Completed)
-- Trash & Restore — soft-deleted tasks can be recovered instead of being lost permanently
-- Task filtering by status and priority, with pagination
-- List view and Board (Kanban-style, drag-and-drop) view
-- Dark / Light theme toggle, persisted across page refreshes (localStorage)
-- Fully responsive layout — desktop, tablet, and mobile
-- Reusable component library (TaskList, TaskBoard, TaskForm, Navbar, AuthGuard, ConfirmDialog)
-- Input validation on both frontend (form-level) and backend (NestJS DTOs + class-validator)
+### Authentication
+
+- Email/password registration and login
+- Guest Login for quick product evaluation
+- Protected application routes
+- JWT-based authentication
+- Automatic handling of unauthorized/expired sessions
+- Logout
+
+### Task Management
+
+- Create, view, edit, and delete tasks
+- Soft-delete/trash and restore support
+- Task status management
+- Priority management
+- Task detail page with properties panel
+- Due dates with a custom date picker
+- Subtasks
+- Task resources/links
+- Task comments/updates
+- Task action menu
+- Search with debounced input
+- Status and priority filtering
+- Extensible filter menu for additional task properties
+
+### Views
+
+- List/Table view
+- Board/Kanban view
+- Drag-and-drop task status management
+- Synchronized task data between views
+- Responsive desktop, tablet, and mobile layouts
+
+### Projects
+
+- Project listing
+- Project detail view
+- Project creation and editing
+- Project priority
+- Project status
+- Project lead
+- Project due date
+
+### Profile & Appearance
+
+- User profile page
+- Profile information display/editing where supported
+- Light and Dark themes
+- Persistent theme preference
+- Accent color modes:
+  - Amber
+  - Blue
+  - Pink
+  - Rose
+  - Emerald
+  - Black
+- Settings and appearance controls
+- Responsive mobile navigation/sidebar
+
+### Engineering & Quality
+
+- Reusable React components
+- Centralized frontend API handling
+- Backend DTO validation with `class-validator`
+- JWT authentication guards
+- User-scoped task/project access
+- Environment-based CORS configuration
+- MongoDB indexes for commonly queried task/project fields
+- Responsive UI
+- Accessible interactive controls
+- Production build and lint checks
 
 ## Project Structure
 
-```
+```text
 ablespace-task-manager/
-├── backend/          # NestJS API
+├── backend/                    # NestJS API
 │   ├── src/
-│   │   ├── auth/     # JWT auth, guest login, guards, strategies
-│   │   ├── tasks/    # Task CRUD module
-│   │   └── users/    # User schema & service
+│   │   ├── auth/               # JWT authentication, guest login, guards
+│   │   ├── tasks/              # Task CRUD and task services
+│   │   ├── projects/           # Project functionality
+│   │   └── users/              # User schema, profile and services
 │   └── .env.example
-├── frontend/         # Next.js app
-│   ├── app/          # App Router pages (dashboard, login, register, tasks)
-│   ├── components/   # Reusable UI components
-│   └── lib/          # API client, auth context, theme context
+│
+├── frontend/                   # Next.js application
+│   ├── app/                    # App Router pages and routes
+│   │   ├── dashboard/
+│   │   ├── login/
+│   │   ├── register/
+│   │   ├── tasks/
+│   │   ├── projects/
+│   │   ├── profile/
+│   │   └── settings/
+│   ├── components/             # Reusable UI components
+│   └── lib/                    # API client, auth and theme utilities
+│
+├── AbleSpace_Part2_Walkthrough.docx
 └── README.md
 ```
 
 ## Running Locally
 
+### Prerequisites
+
+- Node.js and npm
+- MongoDB database
+- Git
+
 ### Backend
+
 ```bash
 cd backend
 npm install
-cp .env.example .env   # fill in MongoDB URI and JWT secret
+cp .env.example .env
 npm run start:dev
 ```
 
+Configure the required values in `backend/.env`, including the MongoDB connection string and JWT secret.
+
 ### Frontend
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:3000`, backend on `http://localhost:3001` (or as configured in `.env`).
+The frontend normally runs on `http://localhost:3000`. The backend port is determined by the backend environment configuration.
 
-## Design Fidelity Notes
+The frontend must be configured with the deployed/local backend API URL through the project's environment variable configuration.
 
-Implementation follows the provided Figma design
-(https://www.figma.com/design/obONCFmoTFN27V5H9PHS2X/Assessment-Task).
+## Environment Variables
 
-**Intentional deviations from Figma:**
-- <LIST_ANY_DIFFERENCES_HERE_ONCE_YOU_COMPARE — e.g. "Used system font stack instead of [Figma font] due to licensing", or "Simplified empty-state illustration", etc.>
+### Backend
 
-*(If there are no deviations after comparison, replace this section with: "Implementation closely follows the Figma design with no intentional deviations.")*
+Typical production configuration includes:
+
+```text
+MONGODB_URI=<MongoDB connection string>
+JWT_SECRET=<secure JWT secret>
+JWT_EXPIRES_IN=<token expiry>
+CORS_ORIGIN=https://ablespace-task-manager-beta.vercel.app
+PORT=<configured Render port>
+```
+
+### Frontend
+
+```text
+NEXT_PUBLIC_API_URL=<Render backend URL>
+```
+
+Google OAuth, if enabled, also requires the corresponding OAuth provider configuration and frontend/backend environment variables used by the application.
+
+**Never commit real secrets, database credentials, JWT secrets, or OAuth credentials to the repository.**
+
+## Design Fidelity
+
+The implementation follows the supplied AbleSpace Figma assessment design:
+
+https://www.figma.com/design/obONCFmoTFN27V5H9PHS2X/Assessment-Task
+
+The implementation covers the major reference states including:
+
+- Authentication screen
+- Workspace/sidebar navigation
+- Tasks Board view
+- Tasks List view
+- Search and filter controls
+- Task action menu
+- Task detail and properties panel
+- Subtasks
+- Resources
+- Comments/updates
+- Projects
+- Profile
+- Settings
+- Theme and accent color controls
+- Responsive layouts
+
+There are **no intentional product or interaction deviations** from the assessment requirements. Minor visual differences may occur due to browser rendering, available icon/font assets, and the runtime environment.
 
 ## Part 2 — Product Understanding
 
-See `AbleSpace_Part2_Walkthrough.docx` in the repo root for the full AbleSpace
-Caseload → Take Data screen walkthrough (with screenshots) and suggested UX/UI improvements.
+The repository includes:
+
+`AbleSpace_Part2_Walkthrough.docx`
+
+The document covers the AbleSpace **Caseload → Take Data** workflow, screenshots, product understanding, and suggested UX/UI improvements as required by Part 2 of the assessment.
+
+## Deployment
+
+The application is deployed as two services:
+
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Database:** MongoDB
+
+For production deployments, make sure the frontend `NEXT_PUBLIC_API_URL` points to the Render backend and the backend `CORS_ORIGIN` allows the deployed Vercel frontend origin.
+
+After changes are pushed to the configured Git branch, the connected deployment services can build and deploy the latest version automatically.
+
+## Assessment Notes
+
+This project was developed specifically for the AbleSpace Full Stack Developer assessment. The implementation focuses on:
+
+- Figma-oriented UI fidelity
+- Full-stack architecture
+- Reusable components
+- REST API integration
+- Authentication and authorization
+- Database persistence
+- Responsive design
+- Input validation
+- Maintainability
+- Production deployment
+
+AI-assisted development tools may have been used during implementation; all submitted functionality should remain understandable and explainable during the technical evaluation/interview.
 
 ## Author
 
-Abhishek Kumar — [GitHub](https://github.com/Abhishek180-Kumar)
+**Abhishek Kumar**
+
+GitHub: https://github.com/Abhishek180-Kumar
