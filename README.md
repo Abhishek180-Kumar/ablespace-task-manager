@@ -74,15 +74,17 @@ Implementation follows the provided Figma design
 **Intentional deviations from Figma:**
 - **Login page:** Added an email/password "Sign in" form and a "Create an account" link above the Guest/Google buttons. The Figma design only shows Guest Login and Login with Google — email/password auth was added as an extra entry point so the app is usable without relying on OAuth or a shared guest account.
 - **Task detail — Subtasks:** Figma shows subtasks as a full table (each with its own Priority, Members, and Due Date). The current build keeps subtasks as a simple checklist (title + checkbox) to keep task creation fast; per-subtask priority/assignee/due-date was left out of scope for this pass.
-- **Task detail — Details sidebar:** Members is shown as a single read-only assigned owner rather than Figma's multi-avatar picker with an "Add members" action. Labels and Reporter are set from the task creation/edit form instead of being editable inline from this sidebar, and a separate "Teams" field was not implemented.
+- **Task detail — Teams field:** Figma's Details panel includes a "Teams" field; this was not implemented (no team/group model exists in the backend yet).
 - **Sidebar navigation:** Added a "Trash" item (soft-delete + restore for tasks) that isn't part of the Figma nav — included as an extra safety net beyond the original scope.
 
-No other intentional deviations — layout, spacing, theme system (light/dark + 6 accent colors), and the Projects/Tasks table structure follow the Figma design closely.
+No other intentional deviations — layout, spacing, theme system (light/dark + 6 accent colors), Details card (Status/Priority/Members/Dates/Labels/Reporter with inline add/remove), and the Projects/Tasks table structure follow the Figma design closely.
 
 ## Part 2 — Product Understanding
 
-See `AbleSpace_Part2_Walkthrough.docx` in the repo root for the full AbleSpace
-Caseload → Take Data screen walkthrough (with screenshots) and suggested UX/UI improvements.
+Full walkthrough of the AbleSpace Caseload → Take Data screen (with screenshots) and suggested UX/UI improvements:
+**[AbleSpace_Part2_Walkthrough.docx](https://docs.google.com/document/d/1nhEhk8HLB--YcshPZ3Fv8x8vhzyfo_RB/edit?usp=drive_link)**
+
+A copy of the same document is also included in the repo root (`AbleSpace_Part2_Walkthrough.docx`).
 
 ## Author
 
